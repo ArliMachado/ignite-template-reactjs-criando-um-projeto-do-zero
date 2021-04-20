@@ -14,6 +14,7 @@ import styles from './post.module.scss';
 
 interface Post {
   first_publication_date: string | null;
+  last_publication_date: string | null;
   data: {
     title: string;
     banner: {
@@ -89,6 +90,20 @@ export default function Post({
               {`${estimatedReadTime} min`}
             </p>
           </div>
+
+          {post.last_publication_date && (
+            <div className={styles.postUpdated}>
+              <p>
+                {format(
+                  new Date(post.last_publication_date),
+                  "'* editado em 'dd MMM uuuu', às 'HH:mm",
+                  {
+                    locale: ptBR,
+                  }
+                )}
+              </p>
+            </div>
+          )}
 
           <div className={styles.postContent}>
             {post.data.content.map(content => {
