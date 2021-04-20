@@ -1,1 +1,61 @@
-// TODO
+.posts {
+
+  max-width: 700px;
+
+
+  a {
+    display: block;
+
+    & + a {
+      margin-top: 3rem;
+    }
+
+    strong {
+      color: var(--gray-100);
+      display: block;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    >p {
+      margin-top: 0.5rem;
+      font-size: 1.125rem;
+      color: var(--gray-400);
+      line-height: 1.361rem;
+    }
+  }
+
+  .postInfo {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    color: var(--gray-500);
+
+
+    p {
+      font-size: 0.87rem;
+
+      & + p {
+        margin-left: 1.5rem;
+      }
+
+      .icon {
+        margin-right: 0.5rem;
+      }
+    }
+  }
+
+  .nextPage {
+    background: transparent;
+    border: 0;
+
+    margin-top: 4rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--pink-500);
+  }
+
+
+
+}
