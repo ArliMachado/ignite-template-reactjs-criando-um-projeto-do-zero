@@ -8,6 +8,7 @@ import ptBR from 'date-fns/locale/pt-BR';
 
 import { getPrismicClient } from '../services/prismic';
 
+import PreviewToolbar from '../components/PreviewToolbar';
 import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
 import Header from '../components/Header';
@@ -29,9 +30,13 @@ interface PostPagination {
 
 interface HomeProps {
   postsPagination: PostPagination;
+  preview: boolean;
 }
 
-export default function Home({ postsPagination }: HomeProps): JSX.Element {
+export default function Home({
+  postsPagination,
+  preview,
+}: HomeProps): JSX.Element {
   const { results, next_page } = postsPagination;
   const [posts, setPosts] = useState(results);
   const [nextPage, setNextPage] = useState(next_page);
@@ -87,15 +92,29 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
           )}
         </div>
       </main>
+      {preview && (
+        <Link href="/api/exit-preview">
+          <a className={commonStyles.preview}>Sair do modo preview</a>
+        </Link>
+      )}
+      <PreviewToolbar />
     </>
   );
 }
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getStaticProps: GetStaticProps = async ({
+  preview = false,
+  previewData = {},
+}) => {
+  const { ref } = previewData;
   const prismic = getPrismicClient();
   const postsResponse = await prismic.query(
     [Prismic.predicates.at('document.type', 'posts')],
-    { pageSize: 2 }
+    {
+      pageSize: 2,
+      orderings: '[documents.first_publication_date]',
+      ref: ref || null,
+    }
   );
 
   return {
@@ -104,6 +123,7 @@ export const getStaticProps: GetStaticProps = async () => {
         next_page: postsResponse.next_page,
         results: postsResponse.results,
       },
+      preview,
     },
   };
 };

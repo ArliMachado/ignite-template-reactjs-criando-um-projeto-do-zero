@@ -5,8 +5,10 @@ import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 import { useRouter } from 'next/router';
 import Prismic from '@prismicio/client';
-
 import Link from 'next/link';
+import PreviewToolbar from '../../components/PreviewToolbar';
+
+import Comments from '../../components/Comments';
 import Header from '../../components/Header';
 import { getPrismicClient } from '../../services/prismic';
 import commonStyles from '../../styles/common.module.scss';
@@ -38,25 +40,22 @@ interface PostPagination {
 
 interface PostProps {
   post: Post;
+  estimatedReadTime: number;
   nextPost: PostPagination | null;
   prevPost: PostPagination | null;
+  preview: boolean;
 }
 
 export default function Post({
   post,
+  estimatedReadTime,
   nextPost,
   prevPost,
+  preview,
 }: PostProps): JSX.Element {
   const router = useRouter();
-
-  const totalWords = post.data.content.reduce((acc, content) => {
-    const bodyContent = RichText.asText(content.body);
-
-    const contentSize = bodyContent.split(' ').length - 1;
-    return acc + contentSize;
-  }, 0);
-
-  const estimatedReadTime = Math.ceil(totalWords / 200);
+  const pathName = router.asPath;
+  console.log(JSON.stringify(router.asPath, null, 2));
 
   if (router.isFallback) {
     return <div>Carregando...</div>;
@@ -144,8 +143,17 @@ export default function Post({
               )}
             </div>
           </div>
+
+          <Comments slug={pathName} />
         </article>
       </main>
+
+      {preview && (
+        <Link href="/api/exit-preview">
+          <a className={commonStyles.preview}>Sair do modo preview</a>
+        </Link>
+      )}
+      <PreviewToolbar />
     </>
   );
 }
@@ -166,11 +174,27 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
+export const getStaticProps: GetStaticProps = async ({
+  params,
+  preview = false,
+  previewData = {},
+}) => {
   const { slug } = params;
+  const { ref } = previewData;
   const prismic = getPrismicClient();
 
-  const postResponse = await prismic.getByUID('posts', String(slug), {});
+  const postResponse = await prismic.getByUID('posts', String(slug), {
+    ref: ref || null,
+  });
+
+  const totalWords = postResponse.data.content.reduce((acc, content) => {
+    const bodyContent = RichText.asText(content.body);
+
+    const contentSize = bodyContent.split(' ').length - 1;
+    return acc + contentSize;
+  }, 0);
+
+  const estimatedReadTime = Math.ceil(totalWords / 200);
 
   const prevPost = await prismic.query(
     [
@@ -202,8 +226,10 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   return {
     props: {
       post: postResponse,
+      estimatedReadTime,
       nextPost: nextPost?.results[0] || null,
       prevPost: prevPost?.results[0] || null,
+      preview,
     },
     redirect: 60 * 30, // 30 min
   };

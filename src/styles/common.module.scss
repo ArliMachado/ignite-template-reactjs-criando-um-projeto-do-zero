@@ -2,4 +2,31 @@
 .container {
   max-width: 1120px;
   margin: 0 auto;
+
+
+
+
+}
+
+.preview {
+  max-width: 1120px;
+  margin: 5rem auto;
+  background-color: var(--gray-100);
+  color: var(--gray-900);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 3.625rem;
+  // width: 700px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border-radius: 0.25rem;
+  // margin-top: ;
+  transition: border 0.2s, color 0.2s, background-color 0.2s;
+
+  &:hover {
+    border: 2px solid var(--pink-500);
+    background-color: var(--gray-900);
+    color: var(--pink-500);
+  }
 }
